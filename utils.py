@@ -42,15 +42,25 @@ def prepare_dataloaders(args):
         '''
         train_dataset = torchvision.datasets.CIFAR10(root=data_path, train=True, download=True, transform=train_transform)
         valid_dataset = torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=valid_transform)
+    elif args.datasets == 'cifar100':
+        train_dataset = torchvision.datasets.CIFAR100(root=data_path, train=True, download=True, transform=train_transform)
+        valid_dataset = torchvision.datasets.CIFAR100(root=data_path, train=False, download=True, transform=valid_transform)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset,
+    elif args.datasets == 'imagenet':
+        # ImageNet 2012 Classification Dataset.
+        train_dataset = torchvision.datasets.ImageNet(root=data_path, split='train', download=True, transform=train_transform)
+        valid_dataset = torchvision.datasets.ImageNet(root=data_path, split='val', download=True, transform=valid_transform)
+
+
+    train_loader = torch.utils.data.DataLoader(train_dataset,
                                                     batch_size = args.batch,
                                                     num_workers = args.workers,
                                                     shuffle = True)
 
-        valid_loader = torch.utils.data.DataLoader(valid_dataset,
+    valid_loader = torch.utils.data.DataLoader(valid_dataset,
                                                     batch_size = args.batch,
                                                     num_workers = args.workers)
+    '''
     elif args.datasets == 'imagenet':
         # ImageNet 2012 Classification Dataset.
         train_dataset = torchvision.datasets.ImageNet(root=data_path, split='train', download=True, transform=train_transform)
@@ -66,4 +76,5 @@ def prepare_dataloaders(args):
                                                     num_workers = args.workers,
                                                     shuffle = True)
 
+    '''
     return train_loader, valid_loader, len(train_dataset), len(valid_dataset)

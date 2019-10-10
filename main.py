@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--save_directory', default='trained.chkpt', type=str, help='path to latest checkpoint')
     parser.add_argument('--workers', default=8, type=int, help='num_workers')
     parser.add_argument('--resume', default=False, type=bool, help='resume')
-    parser.add_argument('--datasets', default='CIFAR10', type=str, help='classification dataset  (CIFAR10, ImageNet)')
+    parser.add_argument('--datasets', default='CIFAR10', type=str, help='classification dataset  (CIFAR10, CIFAR100, ImageNet)')
     parser.add_argument('--weight_decay', default=1e-4, type=float, help='weight_decay')
     parser.add_argument('--save', default='trained', type=str, help='trained.chkpt')
     parser.add_argument('--save_multi', default='trained_multi', type=str, help='trained_multi.chkpt')
@@ -53,18 +53,19 @@ def main():
     use_multi_gpu = torch.cuda.device_count() > 1
     print('[Info] device:{} use_multi_gpu:{}'.format(device, use_multi_gpu))
 
+    if args.datasets == 'cifar10':
+        num_classes = 10
+    elif args.datasets == 'cifar100':
+        num_classes = 100
+    elif args.datasets == 'imagenet':
+        num_classes = 1000
+
     # load the data.
     print('[Info] Load the data.')
     train_loader, valid_loader, train_size, valid_size = prepare_dataloaders(args)
 
     # load the model.
     print('[Info] Load the model.')
-
-
-    if args.datasets == 'cifar10':
-        num_classes = 10
-    elif args.datasets == 'imagenet':
-        num_classes = 1000
 
     if args.backbone == 'resnet18':
         model = resnet.resnet18(num_classes=num_classes, atte=args.arch, ratio=args.reduction_ratio, dilation = args.dilation_value)
