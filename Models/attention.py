@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from Models.conv import conv1x1, conv3x3
+from Models.conv import conv1x1, conv3x3, conv7x7
 
 class BAM(nn.Module):
     def __init__(self, in_channel, out_channel, reduction_ratio, dilation):
@@ -55,14 +55,58 @@ class BAM(nn.Module):
         Ms = self.bn_2d(Ms)
         Ms = Ms.view(x.size(0), 1, x.size(2), x.size(3))
 
-        Mf = 1 + self.sigmoid(Mc * Ms)
+        Mf = self.sigmoid(Mc * Ms)
         return x + (x * Mf)
 
 #To-do:
-'''
 class CBAM(nn.Module):
-    def __init__(self, in_channel):
+    def __init__(self, in_channel, out_channel, reduction_ratio, dilation=1):
         super(CBAM, self).__init__()
+        self.hid_channel = in_channel // reduction_ratio
+        self.dilation = dilation
+        self.out_channel = out_channel
+
+        self.globalAvgPool = nn.AvgPool2d(kernel_size=self.out_channel, stride=1)
+        self.globalMaxPool = nn.MaxPool2d(kernel_size=self.out_channel, stride=1)
+
+        self.cAvgPool = nn.AvgPool1d(kernel_size=1, stride=self.out_channel)
+        self.cMaxPool = nn.MaxPool1d(kernel_size=1, stride=self.out_channel)
+
+        # Shared MLP.
+        self.mlp = nn.Sequential(
+            nn.Linear(in_features=in_channel, out_features=self.hid_channel),
+            nn.ReLU(),
+            nn.Linear(in_features=self.hid_channel, out_features=in_channel)
+        )
+
+        self.relu = nn.ReLU(inplace=True)
+        self.sigmoid = nn.Sigmoid()
+
+        self.conv1 = conv7x7(2, 1, stride=1, dilation=self.dilation)
+
     def forward(self, x):
-        return x
-'''
+        ''' Channel attention '''
+        avgOut = self.globalAvgPool(x)
+        avgOut = avgOut.view(avgOut.size(0), -1)
+        avgOut = self.mlp(avgOut)
+
+        maxOut = self.globalMaxPool(x)
+        maxOut = maxOut.view(maxOut.size(0), -1)
+        maxOut = self.mlp(maxOut)
+        # sigmoid(MLP(AvgPool(F)) + MLP(MaxPool(F)))
+        Mc = self.sigmoid(avgOut + maxOut)
+        Mc = Mc.view(Mc.size(0), Mc.size(1), 1, 1)
+        Mf1 = Mc * x
+
+        ''' Spatial attention. '''
+        # sigmoid(conv7x7( [AvgPool(F); MaxPool(F)]))
+
+        maxOut = torch.max(Mf1, 1)[0].unsqueeze(1)
+        avgOut = torch.mean(Mf1, 1).unsqueeze(1)
+        Ms = torch.cat((maxOut, avgOut), dim=1)
+
+        Ms = self.conv1(Ms)
+        Ms = self.sigmoid(Ms)
+        Ms = Ms.view(Ms.size(0), 1, Ms.size(2), Ms.size(3))
+        Mf2 = Ms * Mf1
+        return Mf2

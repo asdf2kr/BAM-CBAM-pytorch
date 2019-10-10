@@ -26,13 +26,13 @@ def main():
     parser.add_argument('--backbone', default='resnet50', type=str, help='backbone classification model (resnet(18, 34, 50, 101, 152)')
     parser.add_argument('--epoch', default=1, type=int, help='start epoch')
     parser.add_argument('--n_epochs', default=1000, type=int, help='numeber of total epochs to run')
-    parser.add_argument('--batch', default=96, type=int, help='mini batch size (default: 256)')
-    parser.add_argument('--lr', default=0.001, type=float, help='initial learning rate')
+    parser.add_argument('--batch', default=256, type=int, help='mini batch size (default: 256)')
+    parser.add_argument('--lr', default=0.1, type=float, help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--save_directory', default='trained.chkpt', type=str, help='path to latest checkpoint')
     parser.add_argument('--workers', default=8, type=int, help='num_workers')
     parser.add_argument('--resume', default=False, type=bool, help='resume')
-    parser.add_argument('--datasets', default='CIFAR10', type=str, help='classification dataset  (CIFAR10, CIFAR100, ImageNet)')
+    parser.add_argument('--datasets', default='CIFAR100', type=str, help='classification dataset  (CIFAR10, CIFAR100, ImageNet)')
     parser.add_argument('--weight_decay', default=1e-4, type=float, help='weight_decay')
     parser.add_argument('--save', default='trained', type=str, help='trained.chkpt')
     parser.add_argument('--save_multi', default='trained_multi', type=str, help='trained_multi.chkpt')
@@ -137,7 +137,7 @@ def main():
                 'state_dict': model.module.state_dict(),
                 'best_acc1': best_acc1,
                 'optimizer': optimizer.state_dict(),
-            }, is_best, args_save_multi)
+            }, is_best, args.save_multi)
 
         print('[Info] acc1 {} best@acc1 {}'.format(acc1, best_acc1))
 
@@ -175,7 +175,7 @@ def run_epoch(model, mode, epoch, criterion, optimizer, data_loader, dataset_siz
 
         tq.set_description(' - ({}) [ epoch: {}/{} loss: {:.3f}/{:.3f} ] '.format(mode, epoch[0], epoch[1], losses.val, losses.avg))
         #tqdm.write
-    tqdm.write(' - ({})  [ epoch: {}\ttop@1: {:.3f}\ttop@5: {:.3f}\ttime: {:.3f}]'.format(mode, epoch, top1.avg, top5.avg, (time.time() - start)/60.))
+    tqdm.write(' - ({})  [ epoch: {}\ttop@1: {:.3f}\ttop@5: {:.3f}\tloss: {:.3f}\ttime: {:.3f}]'.format(mode, epoch, top1.avg, top5.avg, losses.avg, (time.time() - start)/60.))
 
 
     return top1.avg
