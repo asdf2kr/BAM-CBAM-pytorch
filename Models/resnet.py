@@ -174,7 +174,7 @@ class ResNet(nn.Module):
         torch.nn.init.kaiming_normal(self.fc.weight)
         for m in self.state_dict():
             if isinstance(m, nn.Conv2d):
-                torch.nn.init.kaiming_normal(self.state_dict()[key], mode='fan_out')
+                torch.nn.init.kaiming_normal(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
