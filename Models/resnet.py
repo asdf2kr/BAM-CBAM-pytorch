@@ -171,6 +171,13 @@ class ResNet(nn.Module):
         self.avgPool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
+        torch.nn.init.kaiming_normal(self.fc.weight)
+        for m in self.state_dict():
+            if isinstance(m, nn.Conv2d):
+                torch.nn.init.kaiming_normal(self.state_dict()[key], mode='fan_out')
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
         '''
         for m in self.modules():
         '''
