@@ -10,8 +10,6 @@ class BasicBlock(nn.Module):
     expansion = 1
     def __init__(self, in_channels, hid_channels, atte='bam', ratio=16, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
-
-        output_size = {64: 56, 128: 28, 256:14, 512:7}
         self.conv1 = conv3x3(in_channels, hid_channels, stride)
         self.bn1 = nn.BatchNorm2d(hid_channels)
         self.relu = nn.ReLU(inplace=True)
@@ -20,7 +18,7 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
 
         if atte == 'cbam':
-            self.atte = CBAM(out_channels, output_size[hid_channels], ratio)
+            self.atte = CBAM(out_channels, ratio)
         else:
             self.atte = None
 
@@ -50,7 +48,6 @@ class BottleneckBlock(nn.Module): # bottelneck-block, over the 50 layers.
     expansion = 4
     def __init__(self, in_channels, hid_channels, atte='bam', ratio=16, stride=1, downsample=None):
         super(BottleneckBlock, self).__init__()
-        output_size = {64: 56, 128: 28, 256:14, 512:7}
         self.downsample = downsample
         out_channels = hid_channels * self.expansion
         self.conv1 = conv1x1(in_channels, hid_channels)
@@ -65,7 +62,7 @@ class BottleneckBlock(nn.Module): # bottelneck-block, over the 50 layers.
         self.relu = nn.ReLU(inplace=True)
 
         if atte == 'cbam':
-            self.atte = CBAM(out_channels, output_size[hid_channels], ratio)
+            self.atte = CBAM(out_channels, ratio)
         else:
             self.atte = None
 

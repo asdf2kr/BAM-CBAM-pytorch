@@ -3,13 +3,11 @@ import torch.nn as nn
 from Models.conv import conv1x1, conv3x3, conv7x7
 
 class BAM(nn.Module):
-    def __init__(self, in_channel, out_channel, reduction_ratio, dilation):
+    def __init__(self, in_channel, reduction_ratio, dilation):
         super(BAM, self).__init__()
         self.hid_channel = in_channel // reduction_ratio
         self.dilation = dilation
-        self.out_channel = out_channel
-
-        self.globalAvgPool = nn.AvgPool2d(self.out_channel, stride = 1)
+        self.globalAvgPool = nn.AdaptiveAvgPool2d(1)
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
 
@@ -65,18 +63,14 @@ class BAM(nn.Module):
 
 #To-do:
 class CBAM(nn.Module):
-    def __init__(self, in_channel, out_channel, reduction_ratio, dilation=1):
+    def __init__(self, in_channel, reduction_ratio, dilation=1):
         super(CBAM, self).__init__()
         self.hid_channel = in_channel // reduction_ratio
         self.dilation = dilation
-        self.out_channel = out_channel
 
-        self.globalAvgPool = nn.AvgPool2d(kernel_size=self.out_channel, stride=1)
-        self.globalMaxPool = nn.MaxPool2d(kernel_size=self.out_channel, stride=1)
-
-        self.cAvgPool = nn.AvgPool1d(kernel_size=1, stride=self.out_channel)
-        self.cMaxPool = nn.MaxPool1d(kernel_size=1, stride=self.out_channel)
-
+        self.globalAvgPool = nn.AdaptiveAvgPool2d(1)
+        self.globalMaxPool = nn.AdaptiveMaxPool2d(1)
+        
         # Shared MLP.
         self.mlp = nn.Sequential(
             nn.Linear(in_features=in_channel, out_features=self.hid_channel),
