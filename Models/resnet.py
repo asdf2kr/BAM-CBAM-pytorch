@@ -157,9 +157,9 @@ class ResNet(nn.Module):
         self.maxPool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         if self.atte == 'bam':
-            self.bam1 = BAM(64*block.expansion, 56, self.ratio, self.dilation)
-            self.bam2 = BAM(128*block.expansion, 28, self.ratio, self.dilation)
-            self.bam3 = BAM(256*block.expansion, 14, self.ratio, self.dilation)
+            self.bam1 = BAM(64*block.expansion, self.ratio, self.dilation)
+            self.bam2 = BAM(128*block.expansion, self.ratio, self.dilation)
+            self.bam3 = BAM(256*block.expansion, self.ratio, self.dilation)
 
         self.conv2 = self.get_layers(block, 64, self.layers[0])
         self.conv3 = self.get_layers(block, 128, self.layers[1], stride=2)
