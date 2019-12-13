@@ -151,10 +151,19 @@ class ResNet(nn.Module):
         self.ratio = ratio
         self.dilation = dilation
 
-        self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False)
-        self.bn = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU(inplace=True)
-        self.maxPool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        if num_classes == 1000:
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+            )
+        else:
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True)
+            )
 
         if self.atte == 'bam':
             self.bam1 = BAM(64*block.expansion, self.ratio, self.dilation)
@@ -204,9 +213,6 @@ class ResNet(nn.Module):
         '''
 
         x = self.conv1(x)
-        x = self.bn(x)
-        x = self.relu(x)
-        x = self.maxPool(x)
 
         x = self.conv2(x)
         if self.atte == 'bam':

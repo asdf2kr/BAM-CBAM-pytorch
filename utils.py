@@ -13,14 +13,14 @@ def prepare_dataloaders(args):
 
     if args.datasets == 'cifar10':
         train_transform = transform=transforms.Compose([
-                                   transforms.Resize(32), #padding=4
+                                   transforms.RandomCrop(32, padding=4), #padding=4
                                    transforms.RandomHorizontalFlip(),
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.485, 0.456, 0.406),
                                                         (0.229, 0.224, 0.225)),
                                ])
         valid_transform = transform=transforms.Compose([
-                                   transforms.Resize(32),
+                                   # transforms.Resize(32),
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.485, 0.456, 0.406),
                                                         (0.229, 0.224, 0.225)),
@@ -30,21 +30,24 @@ def prepare_dataloaders(args):
 
     elif args.datasets == 'cifar100':
         train_transform = transform=transforms.Compose([
-                                   transforms.Resize(32), #padding=4
+                                   #transforms.Resize(32, padding=4),
+                                   # transforms.Resize(256),
+                                   transforms.RandomCrop(32, padding=4),
                                    transforms.RandomHorizontalFlip(),
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.485, 0.456, 0.406),
                                                         (0.229, 0.224, 0.225)),
                                ])
         valid_transform = transform=transforms.Compose([
-                                   transforms.Resize(32),
+                                   # transforms.Resize(32),
+                                   # transforms.RandomCrop(224),
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.485, 0.456, 0.406),
                                                         (0.229, 0.224, 0.225)),
                                ])
         train_dataset = torchvision.datasets.CIFAR100(root=data_path, train=True, download=True, transform=train_transform)
         valid_dataset = torchvision.datasets.CIFAR100(root=data_path, train=False, download=True, transform=valid_transform)
-
+        print("args.datasets cifar 100")
     elif args.datasets == 'imagenet':
         train_transform = transform=transforms.Compose([
                                    transforms.Resize(256),

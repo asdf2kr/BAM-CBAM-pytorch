@@ -18,6 +18,8 @@ from tqdm import tqdm
         pytorch, torchvision
         conda install -c conda-forge torchvision
 '''
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def main():
     ''' Main function '''
@@ -25,15 +27,15 @@ def main():
     parser.add_argument('--arch', default='bam', type=str, help='Attention Model (bam, cbam)')
     parser.add_argument('--backbone', default='resnet50', type=str, help='backbone classification model (resnet(18, 34, 50, 101, 152)')
     parser.add_argument('--epoch', default=1, type=int, help='start epoch')
-    parser.add_argument('--n_epochs', default=1000, type=int, help='numeber of total epochs to run')
-    parser.add_argument('--batch', default=256, type=int, help='mini batch size (default: 256)')
+    parser.add_argument('--n_epochs', default=350, type=int, help='numeber of total epochs to run')
+    parser.add_argument('--batch', default=256, type=int, help='mini batch size (default: 1024)')
     parser.add_argument('--lr', default=0.1, type=float, help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--save_directory', default='trained.chkpt', type=str, help='path to latest checkpoint')
-    parser.add_argument('--workers', default=8, type=int, help='num_workers')
+    parser.add_argument('--workers', default=0, type=int, help='num_workers')
     parser.add_argument('--resume', default=False, type=bool, help='resume')
     parser.add_argument('--datasets', default='CIFAR100', type=str, help='classification dataset  (CIFAR10, CIFAR100, ImageNet)')
-    parser.add_argument('--weight_decay', default=1e-4, type=float, help='weight_decay')
+    parser.add_argument('--weight_decay', default=5e-4, type=float, help='weight_decay')
     parser.add_argument('--save', default='trained', type=str, help='trained.chkpt')
     parser.add_argument('--save_multi', default='trained_multi', type=str, help='trained_multi.chkpt')
     parser.add_argument('--evaluate', default=False, type=bool, help='evaluate')
@@ -81,7 +83,7 @@ def main():
 
     model = model.to(device)
     if use_multi_gpu : model = torch.nn.DataParallel(model)
-
+    print('[Info] Total parameters {} '.format(count_parameters(model)))
     # define loss function.
     criterion = torch.nn.CrossEntropyLoss().to(device)
 
@@ -92,9 +94,9 @@ def main():
         # Load the checkpoint.
         print('[Info] Loading checkpoint.')
         if torch.cuda.device_count() > 1:
-            checkpoint = torch.load(args.save_multi)
+            checkpoint = load_checkpoint(args.save)
         else:
-            checkpoint = torch.load(args.save)
+            checkpoint = load_checkpoint(args.save)
 
         backbone = checkpoint['backbone']
         args.epoch = checkpoint['epoch']
@@ -187,6 +189,10 @@ def save_checkpoint(state, is_best, prefix):
         shutil.copyfile(filename, 'checkpoints/{}_best.chkpt'.format(prefix))
     print(' - [Info] The checkpoint file has been updated.')
 
+def load_checkpoint(prefix):
+    filename='checkpoints/{}_checkpoint.chkpt'.format(prefix)
+    return torch.load(filename)
+
 class AverageMeter(object):
     '''Computes and stores the average and current value'''
     def __init__(self):
@@ -206,7 +212,11 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def adjust_learning_rate(optimizer, epoch, args):
+<<<<<<< HEAD
+    lr = args.lr * (0.1 ** (epoch // 100))
+=======
     lr = args.lr * (0.5 ** (epoch // 30))
+>>>>>>> 1b43a5345e5eb309ad9b373a42397d78e41db882
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 

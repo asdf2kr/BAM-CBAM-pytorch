@@ -59,7 +59,7 @@ class BAM(nn.Module):
 
         Ms = Ms.view(x.size(0), 1, x.size(2), x.size(3))
         Mf = 1 + self.sigmoid(Mc * Ms)
-        return x + (x * Mf)
+        return x * Mf
 
 #To-do:
 class CBAM(nn.Module):
@@ -70,7 +70,7 @@ class CBAM(nn.Module):
 
         self.globalAvgPool = nn.AdaptiveAvgPool2d(1)
         self.globalMaxPool = nn.AdaptiveMaxPool2d(1)
-        
+
         # Shared MLP.
         self.mlp = nn.Sequential(
             nn.Linear(in_features=in_channel, out_features=self.hid_channel),
@@ -99,7 +99,6 @@ class CBAM(nn.Module):
 
         ''' Spatial attention. '''
         # sigmoid(conv7x7( [AvgPool(F); MaxPool(F)]))
-
         maxOut = torch.max(Mf1, 1)[0].unsqueeze(1)
         avgOut = torch.mean(Mf1, 1).unsqueeze(1)
         Ms = torch.cat((maxOut, avgOut), dim=1)
