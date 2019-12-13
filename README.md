@@ -18,7 +18,7 @@ The table below shows models, dataset and performances
 
 Model | Backbone | Dataset | Top-1 | Top-5 | Size
 :----:| :----:| :------:| :----:|:-----:|:----:
-- | resnet50 |CIFAR-100 | 78.93% | - | 23.70M
+ | resnet50 |CIFAR-100 | 78.93% | - | 23.70M
 BAM | resnet50 |CIFAR-100 | 79.62% | - | 24.06M
 CBAM | resnet50 |CIFAR-100 | 81.02% | - | 26.23M
 
