@@ -18,7 +18,7 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
 
         if atte == 'cbam':
-            self.atte = CBAM(out_channels, ratio)
+            self.atte = CBAM(hid_channels, ratio)
         else:
             self.atte = None
 
@@ -177,17 +177,17 @@ class ResNet(nn.Module):
         self.avgPool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
-        torch.nn.init.kaiming_normal(self.fc.weight)
+        torch.nn.init.kaiming_normal_(self.fc.weight)
         for m in self.state_dict():
             if isinstance(m, nn.Conv2d):
-                torch.nn.init.kaiming_normal(m.weight, mode='fan_out', nonlinearity='relu')
+                torch.nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
-        torch.nn.init.kaiming_normal(self.fc.weight)
+        torch.nn.init.kaiming_normal_(self.fc.weight)
         for m in self.state_dict():
             if isinstance(m, nn.Conv2d):
-                torch.nn.init.kaiming_normal(m.weight, mode='fan_out', nonlinearity='relu')
+                torch.nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
