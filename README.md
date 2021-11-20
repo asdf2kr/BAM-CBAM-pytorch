@@ -36,8 +36,3 @@ CBAM  | resnet50 |CIFAR-100 | 81.02% | - | 26.23M
 
 #### Reference
 [Official PyTorch code](https://github.com/Jongchan/attention-module)
-
-#### To-do
-Simple setup readme
-Add ImageNet datasets.
-
